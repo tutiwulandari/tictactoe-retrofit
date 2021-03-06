@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_path"
+    app:startDestination="@id/splash">
+
+    <fragment
+        android:id="@+id/splash"
+        android:name="com.pascal.tictactoe.presentations.Splash"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splash_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/navigation_path"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"/>
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.pascal.tictactoe.presentations.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_screenGame"
+            app:destination="@id/screenGame"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"/>
+    </fragment>
+    <fragment
+        android:id="@+id/screenGame"
+        android:name="com.pascal.tictactoe.presentations.ScreenGame"
+        android:label="fragment_screen_game"
+        tools:layout="@layout/fragment_screen_game"
+        app:enterAnim="@anim/slide_in"
+        app:exitAnim="@anim/slide_out" >
+        <action
+            android:id="@+id/action_screenGame_to_historyFragment"
+            app:destination="@id/historyFragment" />
+        <action
+            android:id="@+id/action_screenGame_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.pascal.tictactoe.presentations.HistoryFragment"
+        android:label="fragment_history"
+        tools:layout="@layout/fragment_history" >
+        <action
+            android:id="@+id/action_historyFragment_to_screenGame"
+            app:destination="@id/screenGame" />
+    </fragment>
+</navigation>
