@@ -18,7 +18,6 @@ class HistoryViewAdapter() : RecyclerView.Adapter<HistoryViewHolder>() {
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val player = listPlayer[position]
-        val number = position + 1
         holder.bind(player)
     }
 
@@ -27,6 +26,7 @@ class HistoryViewAdapter() : RecyclerView.Adapter<HistoryViewHolder>() {
         }
 
         fun setItemList(list: List<HistoryResponse>) {
+            listPlayer.clear()
             listPlayer.addAll(list)
             notifyDataSetChanged()
 

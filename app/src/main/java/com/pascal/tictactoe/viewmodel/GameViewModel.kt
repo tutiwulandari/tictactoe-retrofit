@@ -1,26 +1,19 @@
 package com.pascal.tictactoe.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.pascal.tictactoe.api.HistoryApi
 import com.pascal.tictactoe.models.HistoryRequest
 import com.pascal.tictactoe.models.HistoryResponse
-import com.pascal.tictactoe.utils.Constans
+import com.pascal.tictactoe.repositories.HistoryRepository
 import com.pascal.tictactoe.utils.ResourceState
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import okhttp3.Dispatcher
 
-class GameViewModel : ViewModel() {
-    private var _addWinner = MutableLiveData<HistoryResponse>()
-    val addWinner : LiveData<HistoryResponse>
+class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
+    private var _addWinner = MutableLiveData<ResourceState>()
+    val addWinner : LiveData<ResourceState>
     get() {
         return _addWinner
     }
@@ -123,23 +116,23 @@ class GameViewModel : ViewModel() {
         checkWinnerPlayer2.clear()
     }
 
+    fun addWinner(request: HistoryRequest) {
+        CoroutineScope(Dispatchers.IO).launch {
+            _addWinner.postValue((ResourceState.loading()))
+            val response = repository.addWinner(request)
+            if(response.isSuccessful) {
+                response.body().let {
+                    _addWinner.postValue(ResourceState.success(true))
+                }
+            }
+            else {
+                _addWinner.postValue(ResourceState.failed("Error to add winner"))
+            }
 
+        }
 
-    fun addHistoryWinner(request: HistoryRequest) {
-        val retrofit = Retrofit.Builder().baseUrl(Constans.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val service = retrofit.create(HistoryApi::class.java)
-        val call = service.addWinner(request)
-       call.enqueue(object : Callback<HistoryResponse> {
-           override fun onFailure(call: Call<HistoryResponse>, t: Throwable) {
-                Log.d("Error: " , t.toString())
-           }
-
-           override fun onResponse(call: Call<HistoryResponse>, response: Response<HistoryResponse>) {
-              _addWinner.value = response.body()
-           }
-
-       })
     }
+
+
+
 }

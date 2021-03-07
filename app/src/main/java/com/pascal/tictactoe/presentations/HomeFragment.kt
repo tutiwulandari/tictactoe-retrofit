@@ -15,9 +15,8 @@ import com.pascal.tictactoe.databinding.FragmentHomeBinding
 import com.pascal.tictactoe.utils.ResourceStatus
 import com.pascal.tictactoe.viewmodel.GameViewModel
 import com.pascal.tictactoe.viewmodel.RegistrationViewModel
-import kotlinx.android.synthetic.main.fragment_home.*
 
-class HomeFragment() : Fragment() {
+class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var gameViewModel: GameViewModel
@@ -44,20 +43,20 @@ class HomeFragment() : Fragment() {
             startbutton.setOnClickListener {
                 val player1 = inputplayer1.text.toString()
                 val player2 = inputplayer2.text.toString()
-                gameViewModel.inputValidationPlayer(player1, player2)
+                registrationViewModel.inputValidationPlayer(player1,player2)
                 registrationViewModel.setPLayer1(player1)
                 registrationViewModel.setPLayer2(player2)
             }
         }
     }
 
-    fun initViewModel() {
-        gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
-        registrationViewModel = ViewModelProvider(requireActivity()).get(RegistrationViewModel::class.java)
+    private fun initViewModel() {
+        registrationViewModel = ViewModelProvider(this).get(RegistrationViewModel::class.java)
+//        gameViewModel = ViewModelProvider(this, requireActivity()).get(GameViewModel::class.java)
     }
 
-    fun subscribe() {
-        gameViewModel.validationPlayer.observe(this) {
+    private fun subscribe() {
+        registrationViewModel.validationPlayer.observe(this) {
             when (it.status) {
                 ResourceStatus.LOADING -> {
                     loadingDialog.show()

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.pascal.tictactoe.R
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -29,7 +30,7 @@ class Splash : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         GlobalScope.launch {
             delay(2000)
-            view.findNavController().navigate(R.id.action_splash_to_homeFragment)
+            findNavController().navigate(R.id.action_splash_to_homeFragment)
         }
     }
 

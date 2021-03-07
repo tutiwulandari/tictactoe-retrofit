@@ -3,6 +3,10 @@ package com.pascal.tictactoe.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pascal.tictactoe.utils.ResourceState
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class RegistrationViewModel: ViewModel() {
 
@@ -26,4 +30,25 @@ class RegistrationViewModel: ViewModel() {
     fun setPLayer2(player2 : String) {
         _player2.value = player2
     }
+
+    private var _validationPLayer = MutableLiveData<ResourceState>()
+    val validationPlayer: LiveData<ResourceState>
+        get() {
+            return _validationPLayer
+        }
+
+    fun inputValidationPlayer(p1: String, p2: String) {
+        GlobalScope.launch {
+            _validationPLayer.postValue(ResourceState.loading())
+            delay(2000)
+            if (p1.isNullOrBlank() || p2.isNullOrBlank()) {
+                _validationPLayer.postValue(ResourceState.failed("Name Player Must Not Blank or Empty"))
+            } else {
+//                _player1.postValue(p1)
+//                _player2.postValue(p2)
+                _validationPLayer.postValue(ResourceState.success(true))
+            }
+        }
+    }
+
 }

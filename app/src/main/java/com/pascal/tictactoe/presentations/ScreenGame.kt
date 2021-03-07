@@ -1,5 +1,6 @@
 package com.pascal.tictactoe.presentations
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -9,18 +10,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.pascal.tictactoe.R
 import com.pascal.tictactoe.databinding.FragmentScreenGameBinding
 import com.pascal.tictactoe.models.HistoryRequest
+import com.pascal.tictactoe.repositories.HistoryRepositoryImpl
+import com.pascal.tictactoe.utils.ResourceStatus
 import com.pascal.tictactoe.viewmodel.GameViewModel
-import com.pascal.tictactoe.viewmodel.HistoryViewModel
 import com.pascal.tictactoe.viewmodel.RegistrationViewModel
-import kotlinx.android.synthetic.main.fragment_screen_game.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -28,13 +27,13 @@ import kotlinx.coroutines.launch
 class ScreenGame() : Fragment() {
 
     private lateinit var binding: FragmentScreenGameBinding
-    private lateinit var gameViewModel: GameViewModel
+    private lateinit var viewModel: GameViewModel
     private lateinit var registrationViewModel : RegistrationViewModel
-    private lateinit var historyViewModel: HistoryViewModel
     private var activePlayer = ""
     private lateinit var player1 :String
     private lateinit var player2 : String
     private lateinit var navController: NavController
+    private lateinit var loadingDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +42,8 @@ class ScreenGame() : Fragment() {
         player1 = registrationViewModel.player1.value.toString()
         player2 = registrationViewModel.player2.value.toString()
         activePlayer = player1
+
+        Log.d("PLAYER" , "$player1 $player2")
     }
 
     override fun onCreateView(
@@ -90,9 +91,7 @@ class ScreenGame() : Fragment() {
             historyButton.setOnClickListener {
                 navController.navigate(R.id.action_screenGame_to_historyFragment)
             }
-//            button_exit.setOnClickListener {
-//                navController.navigate(R.id.action_screenGame_to_homeFragment)
-//            }
+
         }
 
 
@@ -110,12 +109,12 @@ class ScreenGame() : Fragment() {
             buttonSelected.text = "X"
             buttonSelected.setBackgroundColor(Color.parseColor("red"))
             buttonSelected.setTextColor(Color.parseColor("white"))
-            gameViewModel.checkWinnerPlayer1.add(cellID)
+            viewModel.checkWinnerPlayer1.add(cellID)
         } else {
             buttonSelected.text = "O"
             buttonSelected.setBackgroundColor(Color.parseColor("green"))
             buttonSelected.setTextColor(Color.parseColor("white"))
-            gameViewModel.checkWinnerPlayer2.add(cellID)
+            viewModel.checkWinnerPlayer2.add(cellID)
         }
         checkWinner()
         switchPlayer()
@@ -124,24 +123,25 @@ class ScreenGame() : Fragment() {
     }
 
     private fun checkWinner() {
-        gameViewModel.checkWinnerViewModel()
-        if (gameViewModel.winner != -1) {
-            if (gameViewModel.winner == 1) {
+
+        viewModel.checkWinnerViewModel()
+        if (viewModel.winner != -1) {
+            if (viewModel.winner == 1) {
                 makeAllButtonDisabled()
-                gameViewModel.addHistoryWinner(HistoryRequest(player1, player2, player1))
+                viewModel.addWinner(HistoryRequest(player1, player2, player1))
                 viewLifecycleOwner.lifecycleScope.launch{
                     delay(3000)
                     makeAllButtonEnabled()
-                    gameViewModel.winner = -1
+                    viewModel.winner = -1
                 }
                 activePlayer = player2
             } else {
                 makeAllButtonDisabled()
-                gameViewModel.addHistoryWinner(HistoryRequest(player1, player2, player2))
+                viewModel.addWinner(HistoryRequest(player1, player2, player2))
                 viewLifecycleOwner.lifecycleScope.launch{
                     delay(3000)
                     makeAllButtonEnabled()
-                    gameViewModel.winner = -1
+                    viewModel.winner = -1
                 }
                 activePlayer = player2
             }
@@ -152,54 +152,63 @@ class ScreenGame() : Fragment() {
     override fun onPause() {
         super.onPause()
         Log.i("SCREEN GAME FRAGMENT", "ON PAUSE")
-        gameViewModel.resetList()
+        viewModel.resetList()
     }
 
 
 
 
     private fun showPlayerTurn(player: String) {
-        playerturn.text = player + " Turn"
+        binding.apply {
+            playerturn.text = player + " Turn"
+        }
+
     }
 
     private fun makeAllButtonDisabled() {
-        button00.isEnabled = false
-        button01.isEnabled = false
-        button02.isEnabled = false
-        button10.isEnabled = false
-        button11.isEnabled = false
-        button12.isEnabled = false
-        button21.isEnabled = false
-        button22.isEnabled = false
-        button20.isEnabled = false
+        binding.apply {
+            button00.isEnabled = false
+            button01.isEnabled = false
+            button02.isEnabled = false
+            button10.isEnabled = false
+            button11.isEnabled = false
+            button12.isEnabled = false
+            button21.isEnabled = false
+            button22.isEnabled = false
+            button20.isEnabled = false
+        }
         resetButtonText()
     }
 
     private fun makeAllButtonEnabled() {
-        button00.isEnabled = true
-        button01.isEnabled = true
-        button02.isEnabled = true
-        button10.isEnabled = true
-        button11.isEnabled = true
-        button12.isEnabled = true
-        button21.isEnabled = true
-        button22.isEnabled = true
-        button20.isEnabled = true
+        binding.apply {
+            button00.isEnabled = false
+            button01.isEnabled = false
+            button02.isEnabled = false
+            button10.isEnabled = false
+            button11.isEnabled = false
+            button12.isEnabled = false
+            button21.isEnabled = false
+            button22.isEnabled = false
+            button20.isEnabled = false
+        }
 //        Toast.makeText(requireContext(), "Silahkan Bermain Lagi", Toast.LENGTH_LONG).show()
 
     }
 
     private fun resetButtonText() {
-        button00.text = ""
-        button01.text = ""
-        button02.text = ""
-        button10.text = ""
-        button11.text = ""
-        button12.text = ""
-        button21.text = ""
-        button22.text = ""
-        button20.text = ""
-    }
+        binding.apply {
+            button00.text = ""
+            button01.text = ""
+            button02.text = ""
+            button10.text = ""
+            button11.text = ""
+            button12.text = ""
+            button21.text = ""
+            button22.text = ""
+            button20.text = ""
+        }
+        }
 
 
     private fun switchPlayer() {
@@ -211,14 +220,29 @@ class ScreenGame() : Fragment() {
     }
 
     private fun initViewModel() {
-        gameViewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
+        viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                val repository = HistoryRepositoryImpl()
+                return GameViewModel(repository) as T
+            }
+        }).get(GameViewModel::class.java)
         registrationViewModel = ViewModelProvider(requireActivity()).get(RegistrationViewModel::class.java)
-        historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
     }
 
     private fun subscribe(){
-        gameViewModel.addWinner.observe(this) {
-            Toast.makeText(requireContext(), "${it.winName.toUpperCase()} WIN", Toast.LENGTH_LONG).show()
+        viewModel.addWinner.observe(this, Observer {
+            when(it.status) {
+            ResourceStatus.LOADING -> { loadingDialog.show() }
+
+            ResourceStatus.SUCCESS -> {
+                loadingDialog.hide()
+                Toast.makeText(requireContext(), "History Updated", Toast.LENGTH_LONG).show()
+            }
+            ResourceStatus.FAILURE -> {
+                loadingDialog.hide()
+                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+            }
         }
+        })
     }
 }

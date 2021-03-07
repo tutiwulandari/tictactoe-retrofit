@@ -12,8 +12,8 @@ class HistoryViewHolder(val view : View) : RecyclerView.ViewHolder(view) {
 
     fun bind(response: HistoryResponse) {
         binding.apply {
-            tvPlayerName.text = "player1: ${response.player1}, player2: ${response.player2}"
-            tvWinnerName.text = "${response.winName}"
+            tvPlayerName.text = "player1: ${response.player1Name}, player2: ${response.player2Name}"
+            tvWinnerName.text = "${response.winnerName}"
 
         }
     }
