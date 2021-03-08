@@ -1,4 +1,4 @@
-package com.pascal.tictactoe.viewmodel
+package com.pascal.tictactoe.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -44,8 +44,6 @@ class RegistrationViewModel: ViewModel() {
             if (p1.isNullOrBlank() || p2.isNullOrBlank()) {
                 _validationPLayer.postValue(ResourceState.failed("Name Player Must Not Blank or Empty"))
             } else {
-//                _player1.postValue(p1)
-//                _player2.postValue(p2)
                 _validationPLayer.postValue(ResourceState.success(true))
             }
         }

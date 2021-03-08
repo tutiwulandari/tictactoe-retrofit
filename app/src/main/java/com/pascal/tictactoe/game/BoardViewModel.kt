@@ -1,17 +1,14 @@
-package com.pascal.tictactoe.viewmodel
+ package com.pascal.tictactoe.game
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pascal.tictactoe.models.HistoryRequest
-import com.pascal.tictactoe.models.HistoryResponse
 import com.pascal.tictactoe.repositories.HistoryRepository
 import com.pascal.tictactoe.utils.ResourceState
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
-import okhttp3.Dispatcher
 
-class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
+class BoardViewModel(private val repository: HistoryRepository) : ViewModel() {
     private var _addWinner = MutableLiveData<ResourceState>()
     val addWinner : LiveData<ResourceState>
     get() {
@@ -22,23 +19,23 @@ class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
     var checkWinnerPlayer1 = ArrayList<Int>()
     var checkWinnerPlayer2 = ArrayList<Int>()
 
-    private var _validationPLayer = MutableLiveData<ResourceState>()
-    val validationPlayer: LiveData<ResourceState>
-        get() {
-            return _validationPLayer
-        }
+//    private var _validationPLayer = MutableLiveData<ResourceState>()
+//    val validationPlayer: LiveData<ResourceState>
+//        get() {
+//            return _validationPLayer
+//        }
 
-    fun inputValidationPlayer(player1: String, player2: String) {
-        GlobalScope.launch {
-            _validationPLayer.postValue(ResourceState.loading())
-            delay(2000)
-            if (player1.isNullOrBlank() || player2.isNullOrBlank()) {
-                _validationPLayer.postValue(ResourceState.failed("Name Player Must Not Blank or Empty"))
-            } else {
-                _validationPLayer.postValue(ResourceState.success(true))
-            }
-        }
-    }
+//    fun inputValidationPlayer(player1: String, player2: String) {
+//        GlobalScope.launch {
+//            _validationPLayer.postValue(ResourceState.loading())
+//            delay(2000)
+//            if (player1.isNullOrBlank() || player2.isNullOrBlank()) {
+//                _validationPLayer.postValue(ResourceState.failed("Name Player Must Not Blank or Empty"))
+//            } else {
+//                _validationPLayer.postValue(ResourceState.success(true))
+//            }
+//        }
+//    }
 
     fun checkWinnerViewModel() {
         //Check Row 1
@@ -111,10 +108,7 @@ class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
         }
     }
 
-    fun resetList() {
-        checkWinnerPlayer1.clear()
-        checkWinnerPlayer2.clear()
-    }
+
 
     fun addWinner(request: HistoryRequest) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -122,6 +116,7 @@ class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
             val response = repository.addWinner(request)
             if(response.isSuccessful) {
                 response.body().let {
+//                    val addWinnerResponse = it!!
                     _addWinner.postValue(ResourceState.success(true))
                 }
             }
@@ -133,6 +128,9 @@ class GameViewModel(private val repository: HistoryRepository) : ViewModel() {
 
     }
 
-
+    fun resetList() {
+        checkWinnerPlayer1.clear()
+        checkWinnerPlayer2.clear()
+    }
 
 }

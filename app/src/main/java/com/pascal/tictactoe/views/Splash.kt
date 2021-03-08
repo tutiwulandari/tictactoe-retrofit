@@ -1,4 +1,4 @@
-package com.pascal.tictactoe.presentations
+package com.pascal.tictactoe.views
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -30,7 +30,7 @@ class Splash : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         GlobalScope.launch {
             delay(2000)
-            findNavController().navigate(R.id.action_splash_to_homeFragment)
+            view.findNavController().navigate(R.id.action_splash_to_registrationFragment)
         }
     }
 

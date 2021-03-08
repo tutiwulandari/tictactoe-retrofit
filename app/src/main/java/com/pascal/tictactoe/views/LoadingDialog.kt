@@ -1,4 +1,4 @@
-package com.pascal.tictactoe.presentations
+package com.pascal.tictactoe.views
 
 import android.content.Context
 import android.graphics.Color

@@ -1,14 +1,14 @@
-package com.pascal.tictactoe.adapter
+package com.pascal.tictactoe.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pascal.tictactoe.R
-import com.pascal.tictactoe.holder.HistoryViewHolder
 import com.pascal.tictactoe.models.HistoryResponse
+import com.pascal.tictactoe.models.HistoryWinner
 
 class HistoryViewAdapter() : RecyclerView.Adapter<HistoryViewHolder>() {
-   var listPlayer = ArrayList<HistoryResponse>()
+   var data: List<HistoryWinner> = ArrayList<HistoryWinner>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -17,17 +17,13 @@ class HistoryViewAdapter() : RecyclerView.Adapter<HistoryViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
-        val player = listPlayer[position]
-        holder.bind(player)
+        holder.bind(data[position])
     }
 
-        override fun getItemCount(): Int {
-            return listPlayer.size
-        }
+        override fun getItemCount(): Int = data.size
 
-        fun setItemList(list: List<HistoryResponse>) {
-            listPlayer.clear()
-            listPlayer.addAll(list)
+        fun setDataList(list: List<HistoryWinner>) {
+            this.data = list
             notifyDataSetChanged()
 
         }

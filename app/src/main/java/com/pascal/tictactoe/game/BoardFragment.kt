@@ -1,6 +1,6 @@
-package com.pascal.tictactoe.presentations
+package com.pascal.tictactoe.game
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -14,20 +14,20 @@ import androidx.lifecycle.*
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.pascal.tictactoe.R
-import com.pascal.tictactoe.databinding.FragmentScreenGameBinding
+import com.pascal.tictactoe.databinding.FragmentBoardBinding
 import com.pascal.tictactoe.models.HistoryRequest
 import com.pascal.tictactoe.repositories.HistoryRepositoryImpl
 import com.pascal.tictactoe.utils.ResourceStatus
-import com.pascal.tictactoe.viewmodel.GameViewModel
-import com.pascal.tictactoe.viewmodel.RegistrationViewModel
+import com.pascal.tictactoe.home.RegistrationViewModel
+import com.pascal.tictactoe.views.LoadingDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class ScreenGame() : Fragment() {
+class BoardFragment() : Fragment() {
 
-    private lateinit var binding: FragmentScreenGameBinding
-    private lateinit var viewModel: GameViewModel
+    private lateinit var binding: FragmentBoardBinding
+    private lateinit var viewModel: BoardViewModel
     private lateinit var registrationViewModel : RegistrationViewModel
     private var activePlayer = ""
     private lateinit var player1 :String
@@ -50,7 +50,8 @@ class ScreenGame() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentScreenGameBinding.inflate(layoutInflater)
+        binding = FragmentBoardBinding.inflate(layoutInflater)
+        loadingDialog = LoadingDialog.build(requireContext())
         return binding.root
     }
 
@@ -88,19 +89,16 @@ class ScreenGame() : Fragment() {
             button22.setOnClickListener {
                 playGame(9, it as Button)
             }
+
             historyButton.setOnClickListener {
-                navController.navigate(R.id.action_screenGame_to_historyFragment)
+                navController.navigate(R.id.action_boardFragment_to_historyFragment)
             }
 
         }
-
-
     }
-
-
     companion object {
         @JvmStatic
-        fun newInstance() = ScreenGame()
+        fun newInstance() = BoardFragment()
     }
 
 
@@ -130,7 +128,7 @@ class ScreenGame() : Fragment() {
                 makeAllButtonDisabled()
                 viewModel.addWinner(HistoryRequest(player1, player2, player1))
                 viewLifecycleOwner.lifecycleScope.launch{
-                    delay(3000)
+//                    delay(3000)
                     makeAllButtonEnabled()
                     viewModel.winner = -1
                 }
@@ -139,7 +137,7 @@ class ScreenGame() : Fragment() {
                 makeAllButtonDisabled()
                 viewModel.addWinner(HistoryRequest(player1, player2, player2))
                 viewLifecycleOwner.lifecycleScope.launch{
-                    delay(3000)
+//                    delay(3000)
                     makeAllButtonEnabled()
                     viewModel.winner = -1
                 }
@@ -154,8 +152,6 @@ class ScreenGame() : Fragment() {
         Log.i("SCREEN GAME FRAGMENT", "ON PAUSE")
         viewModel.resetList()
     }
-
-
 
 
     private fun showPlayerTurn(player: String) {
@@ -223,9 +219,9 @@ class ScreenGame() : Fragment() {
         viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 val repository = HistoryRepositoryImpl()
-                return GameViewModel(repository) as T
+                return BoardViewModel(repository) as T
             }
-        }).get(GameViewModel::class.java)
+        }).get(BoardViewModel::class.java)
         registrationViewModel = ViewModelProvider(requireActivity()).get(RegistrationViewModel::class.java)
     }
 
@@ -233,7 +229,6 @@ class ScreenGame() : Fragment() {
         viewModel.addWinner.observe(this, Observer {
             when(it.status) {
             ResourceStatus.LOADING -> { loadingDialog.show() }
-
             ResourceStatus.SUCCESS -> {
                 loadingDialog.hide()
                 Toast.makeText(requireContext(), "History Updated", Toast.LENGTH_LONG).show()

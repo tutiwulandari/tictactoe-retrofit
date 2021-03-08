@@ -3,49 +3,59 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_path"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/registrationFragment">
 
     <fragment
         android:id="@+id/splash"
-        android:name="com.pascal.tictactoe.presentations.Splash"
+        android:name="com.pascal.tictactoe.views.Splash"
         android:label="fragment_splash"
-        tools:layout="@layout/fragment_splash">
+        tools:layout="@layout/fragment_splash" >
         <action
-            android:id="@+id/action_splash_to_homeFragment"
-            app:destination="@id/homeFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.pascal.tictactoe.presentations.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/action_homeFragment_to_screenGame"
-            app:destination="@id/screenGame"
+            android:id="@+id/action_splash_to_registrationFragment"
+            app:destination="@id/registrationFragment"
+            app:popUpTo="@id/navigation_path"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_in"
             app:exitAnim="@anim/slide_out"/>
     </fragment>
     <fragment
-        android:id="@+id/screenGame"
-        android:name="com.pascal.tictactoe.presentations.ScreenGame"
-        android:label="fragment_screen_game"
-        tools:layout="@layout/fragment_screen_game"
+        android:id="@+id/registrationFragment"
+        android:name="com.pascal.tictactoe.home.RegistrationFragment"
+        android:label="fragment_registration"
+        tools:layout="@layout/fragment_registration" >
+        <action
+            android:id="@+id/action_registrationFragment_to_boardFragment"
+            app:destination="@id/boardFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/boardFragment"
+        android:name="com.pascal.tictactoe.game.BoardFragment"
+        android:label="fragment_board"
+        tools:layout="@layout/fragment_board"
         app:enterAnim="@anim/slide_in"
-        app:exitAnim="@anim/slide_out" >
+        app:exitAnim="@anim/slide_out">
         <action
-            android:id="@+id/action_screenGame_to_historyFragment"
+            android:id="@+id/action_boardFragment_to_historyFragment"
             app:destination="@id/historyFragment" />
-        <action
-            android:id="@+id/action_screenGame_to_homeFragment"
-            app:destination="@id/homeFragment" />
+        <argument
+            android:name="player1"
+            app:argType="string" />
+        <argument
+            android:name="player2"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/historyFragment"
-        android:name="com.pascal.tictactoe.presentations.HistoryFragment"
+        android:name="com.pascal.tictactoe.history.HistoryFragment"
         android:label="fragment_history"
         tools:layout="@layout/fragment_history" >
         <action
-            android:id="@+id/action_historyFragment_to_screenGame"
-            app:destination="@id/screenGame" />
+            android:id="@+id/action_historyFragment_to_boardFragment"
+            app:destination="@id/boardFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/slide_out"/>
     </fragment>
 </navigation>

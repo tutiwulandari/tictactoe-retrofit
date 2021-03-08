@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security"
         android:theme="@style/Theme.BeamVolume">
-        <activity android:name="com.pascal.tictactoe.presentations.MainActivity">
+        <activity android:name="com.pascal.tictactoe.views.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,20 +1,21 @@
-package com.pascal.tictactoe.presentations
+package com.pascal.tictactoe.history
 
+import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pascal.tictactoe.R
-import com.pascal.tictactoe.adapter.HistoryViewAdapter
 import com.pascal.tictactoe.databinding.FragmentHistoryBinding
-import com.pascal.tictactoe.viewmodel.HistoryViewModel
+import com.pascal.tictactoe.repositories.HistoryRepositoryImpl
+import com.pascal.tictactoe.views.LoadingDialog
 
 
 class HistoryFragment : Fragment() {
@@ -23,22 +24,29 @@ class HistoryFragment : Fragment() {
     private lateinit var binding : FragmentHistoryBinding
     private lateinit var historyViewModel: HistoryViewModel
     private lateinit var historyAdapter : HistoryViewAdapter
+    private lateinit var loadingDialog :AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadingDialog = LoadingDialog.build(requireContext())
         initViewModel()
         subscribe()
     }
 
     private fun initViewModel() {
-        historyViewModel = ViewModelProvider(requireActivity()).get(HistoryViewModel::class.java)
+       historyViewModel = ViewModelProvider(this, object :ViewModelProvider.Factory{
+           override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+              val repository = HistoryRepositoryImpl()
+               return  HistoryViewModel(repository ) as T
+           }
+       }).get(HistoryViewModel::class.java)
     }
 
     private fun subscribe() {
-        historyViewModel.historyWinner.observe(requireActivity()) {
-            historyAdapter.setItemList(it)
+        historyViewModel.historyLiveData.observe(this, Observer {
+            historyAdapter.setDataList(it)
 
-        }
+        })
     }
 
     override fun onCreateView(
@@ -62,6 +70,7 @@ class HistoryFragment : Fragment() {
             backToScreenGameButon.setOnClickListener {
                 view?.findNavController()?.popBackStack()
             }
+            historyViewModel.getHistoryWinner()
         }
 
     }
