@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.pascal.tictactoe.R
@@ -30,7 +31,7 @@ class Splash : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         GlobalScope.launch {
             delay(2000)
-            view.findNavController().navigate(R.id.action_splash_to_registrationFragment)
+            Navigation.findNavController(requireView()).navigate(R.id.action_splash_to_registrationFragment)
         }
     }
 

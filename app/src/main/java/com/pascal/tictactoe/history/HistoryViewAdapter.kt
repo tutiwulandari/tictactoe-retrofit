@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pascal.tictactoe.R
-import com.pascal.tictactoe.models.HistoryResponse
 import com.pascal.tictactoe.models.HistoryWinner
 
 class HistoryViewAdapter() : RecyclerView.Adapter<HistoryViewHolder>() {

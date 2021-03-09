@@ -1,9 +1,9 @@
 package com.pascal.tictactoe.game
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,35 +15,38 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.pascal.tictactoe.R
 import com.pascal.tictactoe.databinding.FragmentBoardBinding
-import com.pascal.tictactoe.models.HistoryRequest
-import com.pascal.tictactoe.repositories.HistoryRepositoryImpl
-import com.pascal.tictactoe.utils.ResourceStatus
 import com.pascal.tictactoe.home.RegistrationViewModel
+import com.pascal.tictactoe.models.HistoryRequest
+import com.pascal.tictactoe.utils.ResourceStatus
+import com.pascal.tictactoe.models.HistoryWinner
+import com.pascal.tictactoe.utils.PLAYER1
+import com.pascal.tictactoe.utils.PLAYER2
 import com.pascal.tictactoe.views.LoadingDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class BoardFragment() : Fragment() {
 
     private lateinit var binding: FragmentBoardBinding
     private lateinit var viewModel: BoardViewModel
-    private lateinit var registrationViewModel : RegistrationViewModel
+    private lateinit var sharedViewModel: RegistrationViewModel
     private var activePlayer = ""
-    private lateinit var player1 :String
-    private lateinit var player2 : String
+    private var player1: String = ""
+    private var player2: String = ""
     private lateinit var navController: NavController
     private lateinit var loadingDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initViewModel()
+        loadingDialog = LoadingDialog.build(requireContext())
         subscribe()
-        player1 = registrationViewModel.player1.value.toString()
-        player2 = registrationViewModel.player2.value.toString()
-        activePlayer = player1
-
-        Log.d("PLAYER" , "$player1 $player2")
+        arguments?.let {
+            player1 = it.getString(PLAYER1).toString()
+            player2 = it.getString(PLAYER2).toString()
+            activePlayer = player1
+            println("Player $player1 $player2")
+        }
     }
 
     override fun onCreateView(
@@ -58,7 +61,9 @@ class BoardFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         showPlayerTurn(activePlayer)
+
         navController = Navigation.findNavController(view)
+
         binding.apply {
             button00.setOnClickListener {
                 playGame(1, it as Button)
@@ -91,19 +96,16 @@ class BoardFragment() : Fragment() {
             }
 
             historyButton.setOnClickListener {
-                navController.navigate(R.id.action_boardFragment_to_historyFragment)
+                Navigation.findNavController(requireView()).navigate(R.id.action_boardFragment_to_historyFragment)
             }
 
         }
     }
-    companion object {
-        @JvmStatic
-        fun newInstance() = BoardFragment()
-    }
 
 
-    private fun playGame(cellID: Int, buttonSelected: Button)  {
+    private fun playGame(cellID: Int, buttonSelected: Button) {
         if (activePlayer == player1) {
+            println("playgame: $player1, $player2")
             buttonSelected.text = "X"
             buttonSelected.setBackgroundColor(Color.parseColor("red"))
             buttonSelected.setTextColor(Color.parseColor("white"))
@@ -121,44 +123,27 @@ class BoardFragment() : Fragment() {
     }
 
     private fun checkWinner() {
-
         viewModel.checkWinnerViewModel()
         if (viewModel.winner != -1) {
             if (viewModel.winner == 1) {
-                makeAllButtonDisabled()
-                viewModel.addWinner(HistoryRequest(player1, player2, player1))
-                viewLifecycleOwner.lifecycleScope.launch{
-//                    delay(3000)
-                    makeAllButtonEnabled()
-                    viewModel.winner = -1
-                }
-                activePlayer = player2
+                val dataWinner = HistoryRequest(player1, player2, player1)
+                viewModel.addWinner(dataWinner)
+//                makeAllButtonEnabled()
             } else {
-                makeAllButtonDisabled()
-                viewModel.addWinner(HistoryRequest(player1, player2, player2))
-                viewLifecycleOwner.lifecycleScope.launch{
-//                    delay(3000)
-                    makeAllButtonEnabled()
-                    viewModel.winner = -1
-                }
-                activePlayer = player2
+                val dataWinner = HistoryRequest(player1, player2, player2)
+                viewModel.addWinner(dataWinner)
+//                makeAllButtonEnabled()
             }
         }
-
     }
 
     override fun onPause() {
         super.onPause()
-        Log.i("SCREEN GAME FRAGMENT", "ON PAUSE")
         viewModel.resetList()
     }
 
-
     private fun showPlayerTurn(player: String) {
-        binding.apply {
-            playerturn.text = player + " Turn"
-        }
-
+        binding.playerturn.text = "$player Turn"
     }
 
     private fun makeAllButtonDisabled() {
@@ -204,7 +189,7 @@ class BoardFragment() : Fragment() {
             button22.text = ""
             button20.text = ""
         }
-        }
+    }
 
 
     private fun switchPlayer() {
@@ -216,28 +201,30 @@ class BoardFragment() : Fragment() {
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val repository = HistoryRepositoryImpl()
-                return BoardViewModel(repository) as T
-            }
-        }).get(BoardViewModel::class.java)
-        registrationViewModel = ViewModelProvider(requireActivity()).get(RegistrationViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(BoardViewModel::class.java)
     }
 
-    private fun subscribe(){
+    private fun subscribe() {
         viewModel.addWinner.observe(this, Observer {
-            when(it.status) {
-            ResourceStatus.LOADING -> { loadingDialog.show() }
-            ResourceStatus.SUCCESS -> {
-                loadingDialog.hide()
-                Toast.makeText(requireContext(), "History Updated", Toast.LENGTH_LONG).show()
+            when (it.status) {
+                ResourceStatus.LOADING -> {
+                    loadingDialog.show()
+                    viewModel.winner = -1
+                    makeAllButtonDisabled()
+                }
+                ResourceStatus.SUCCESS -> {
+                    loadingDialog.hide()
+                    makeAllButtonEnabled()
+                    val dataState = it?.data as HistoryWinner
+                    Toast.makeText(requireContext(), "${dataState.winnerName} WIN" , Toast.LENGTH_LONG).show()
+                    activePlayer = player2
+                }
+                ResourceStatus.FAILURE -> {
+                    loadingDialog.hide()
+                makeAllButtonEnabled()
+                    Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+                }
             }
-            ResourceStatus.FAILURE -> {
-                loadingDialog.hide()
-                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
-            }
-        }
         })
     }
 }

@@ -2,9 +2,10 @@ package com.pascal.tictactoe.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.pascal.tictactoe.R
 import com.pascal.tictactoe.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(){
 
     private lateinit var binding : ActivityMainBinding

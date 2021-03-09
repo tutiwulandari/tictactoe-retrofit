@@ -1,17 +1,20 @@
 package com.pascal.tictactoe.repositories
 
-import com.pascal.tictactoe.api.RetrofitInstance
+import com.pascal.tictactoe.api.HistoryApi
 import com.pascal.tictactoe.models.HistoryRequest
-import com.pascal.tictactoe.models.HistoryResponse
-import com.pascal.tictactoe.models.ResponseHistory
+import com.pascal.tictactoe.models.HistoryWinner
 import retrofit2.Response
+import javax.inject.Inject
 
-class HistoryRepositoryImpl : HistoryRepository {
-    override suspend fun getHistoryWin(): Response<HistoryResponse> =
-        RetrofitInstance.historyApi.getHistoryWin()
+class HistoryRepositoryImpl
+@Inject
+constructor(private val historyApi: HistoryApi) : HistoryRepository {
+
+    override suspend fun getHistoryWin(): Response<List<HistoryWinner>> =
+       historyApi.getHistoryWin()
 
 
-    override suspend fun addWinner(request: HistoryRequest): Response<ResponseHistory> =
-        RetrofitInstance.historyApi.addWinner(request)
+    override suspend fun addWinner(request: HistoryRequest): Response<HistoryWinner> =
+      historyApi.addWinner(request)
 
 }

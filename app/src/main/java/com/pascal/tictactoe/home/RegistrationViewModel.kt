@@ -13,7 +13,7 @@ class RegistrationViewModel: ViewModel() {
     private var _player1 = MutableLiveData<String>()
     private var _player2 = MutableLiveData<String>()
 
-    val player1 :LiveData<String>
+    val player1 : LiveData<String>
         get() {
             return _player1
         }

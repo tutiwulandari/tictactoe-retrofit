@@ -6,9 +6,18 @@ import androidx.lifecycle.ViewModel
 import com.pascal.tictactoe.models.HistoryRequest
 import com.pascal.tictactoe.repositories.HistoryRepository
 import com.pascal.tictactoe.utils.ResourceState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import javax.inject.Inject
+import javax.inject.Named
 
-class BoardViewModel(private val repository: HistoryRepository) : ViewModel() {
+ @HiltViewModel
+class BoardViewModel @Inject constructor() : ViewModel() {
+
+     @Inject
+     @Named("GameRepo")
+     lateinit var repository: HistoryRepository
+
     private var _addWinner = MutableLiveData<ResourceState>()
     val addWinner : LiveData<ResourceState>
     get() {
@@ -116,8 +125,8 @@ class BoardViewModel(private val repository: HistoryRepository) : ViewModel() {
             val response = repository.addWinner(request)
             if(response.isSuccessful) {
                 response.body().let {
-//                    val addWinnerResponse = it!!
-                    _addWinner.postValue(ResourceState.success(true))
+                    val addWinnerResponse = it!!
+                    _addWinner.postValue(ResourceState.success(addWinnerResponse))
                 }
             }
             else {

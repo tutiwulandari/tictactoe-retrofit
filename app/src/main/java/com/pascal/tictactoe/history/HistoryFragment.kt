@@ -16,8 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.pascal.tictactoe.databinding.FragmentHistoryBinding
 import com.pascal.tictactoe.repositories.HistoryRepositoryImpl
 import com.pascal.tictactoe.views.LoadingDialog
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class HistoryFragment : Fragment() {
 
     private lateinit var navController: NavController
@@ -34,12 +35,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun initViewModel() {
-       historyViewModel = ViewModelProvider(this, object :ViewModelProvider.Factory{
-           override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-              val repository = HistoryRepositoryImpl()
-               return  HistoryViewModel(repository ) as T
-           }
-       }).get(HistoryViewModel::class.java)
+        historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
     }
 
     private fun subscribe() {
